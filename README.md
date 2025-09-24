@@ -2,11 +2,11 @@
 ## About this project
 This project is just a discord bot for me to mess around with and learn.
 ## Python packages used in this project
--## [nextcord](https://docs.nextcord.dev/en/stable/)
--## [osu.py](https://osupy.readthedocs.io/en/v4.0.2/)
--## [discord.py](https://discordpy.readthedocs.io/en/stable/)
--## [Gemini API](https://ai.google.dev/gemini-api/docs/quickstart)
--## [https://pypi.org/project/python-dotenv/](https://pypi.org/project/python-dotenv/)
+- **[nextcord](https://docs.nextcord.dev/en/stable/)**
+- **[osu.py](https://osupy.readthedocs.io/en/v4.0.2/)**
+- **[discord.py](https://discordpy.readthedocs.io/en/stable/)**
+- **[Gemini API](https://ai.google.dev/gemini-api/docs/quickstart)**
+- **[https://pypi.org/project/python-dotenv/](https://pypi.org/project/python-dotenv/)**
 ## example format of .env file to run
 ```
 GEMINI_API_KEY=gemini-api-key
