@@ -3,6 +3,14 @@
 ## About this project
 This project is just a discord bot for me to mess around with and learn.
 
+## Current Features
+- command prefix is "!/"
+  - osu!
+    - `getuserprofile <name | id> <gamemode: optional>` - displays user information
+  - Gemini
+    - `askgemini <prompt>` - returns AI generated answer from prompt
+- `!/askgemini "what is a prompt?"`
+
 ## Python packages used in this project
 - **[nextcord](https://docs.nextcord.dev/en/stable/)**
 - **[osu.py](https://osupy.readthedocs.io/en/v4.0.2/)**
