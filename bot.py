@@ -1,10 +1,10 @@
 import os
 import random
-import nextcord
-from nextcord.ext import commands
 import discord
 from discord import Embed
 from discord.ext import commands
+import nextcord
+from nextcord.ext import commands
 from osu import Client, GameModeStr
 from google import genai
 from dotenv import load_dotenv
