@@ -7,6 +7,7 @@ This project is just a discord bot for me to mess around with and learn.
 - command prefix is "!/"
   - osu!
     - `getuserprofile <name | id> <gamemode: optional>` - displays user information
+    - `getuserrecentscore <name | id> <gamemode: optional>` - displays recent score of user; catch maybe broken for now
   - Gemini
     - `askgemini <prompt>` - returns AI generated answer from prompt
 - `!/askgemini "what is a prompt?"`
@@ -14,7 +15,6 @@ This project is just a discord bot for me to mess around with and learn.
 ## Python packages used in this project
 - **[nextcord](https://docs.nextcord.dev/en/stable/)**
 - **[osu.py](https://osupy.readthedocs.io/en/v4.0.2/)**
-- **[discord.py](https://discordpy.readthedocs.io/en/stable/)**
 - **[Gemini API](https://ai.google.dev/gemini-api/docs/quickstart)**
 - **[python-dotenv](https://pypi.org/project/python-dotenv/)**
   

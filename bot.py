@@ -1,11 +1,8 @@
 import os
 import random
-import discord
-from discord import Embed
-from discord.ext import commands
 import nextcord
 from nextcord.ext import commands
-from osu import Client, GameModeStr
+from osu import Client, GameModeStr, UserScoreType
 from google import genai
 from dotenv import load_dotenv
 
@@ -16,6 +13,7 @@ discord_testing_guild_id = os.getenv("DISCORD_TESTING_GUILD_ID")
 osu_client_secret = os.getenv("OSU_CLIENT_SECRET")
 osu_client_id = os.getenv("OSU_CLIENT_ID")
 gemini_api_key = os.getenv("GEMINI_API_KEY")
+redirect_url = os.getenv("REDIRECT_URL")
 
 TESTING_GUILD_ID = discord_testing_guild_id
 intents = nextcord.Intents.default()
@@ -23,7 +21,7 @@ intents.message_content = True
 
 client_id = osu_client_id
 client_secret = osu_client_secret
-client_osu = Client.from_credentials(client_id, client_secret, None)
+client_osu = Client.from_credentials(client_id, client_secret, redirect_url)
 
 client = genai.Client(api_key=gemini_api_key)
 
@@ -62,7 +60,7 @@ def play_time_formatter(seconds: int) -> str:
     seconds = (minutes % 1) * 60
     return f'{int(days)} days, {int(hours)} hours, {int(minutes)} minutes, {int(seconds)} seconds'
 
-def osu_profile(input: int | str, gamemode: str) -> discord.Embed:
+def osu_profile(input: int | str, gamemode: str) -> nextcord.Embed:
     user = None
     user_global_rank = None
     user_country_rank = None
@@ -79,7 +77,7 @@ def osu_profile(input: int | str, gamemode: str) -> discord.Embed:
         user_global_rank = format(user.statistics.global_rank, ",d")
         user_country_rank = format(user.statistics.country_rank, ",d")
 
-    embed_user = discord.Embed(
+    embed_user = nextcord.Embed(
         title=f'osu! {gamemode} Profile for {user.username}',
     )
     embed_user.set_thumbnail(url=user.avatar_url)
@@ -93,9 +91,50 @@ def osu_profile(input: int | str, gamemode: str) -> discord.Embed:
 
     return embed_user
 
+def beatmap_info(id):
+    beatmap_info = client_osu.get_beatmap(id)
+    return beatmap_info
+
+
+    
+def recent_osu_score(input: int | str, gamemode: str):
+    if gamemode != None:
+        user = client_osu.get_user(input, gamemode_translate_to_class(gamemode))
+    else:
+        user = client_osu.get_user(input)
+        gamemode = gamemode_object_to_string(user.playmode)
+
+    recent_score = client_osu.get_user_scores(user=user.id, type=UserScoreType.RECENT, mode=gamemode_translate_to_class(gamemode), include_fails=True, limit=1)[0]
+    score_beatmap = beatmap_info(recent_score.beatmap_id)
+    embed_score = nextcord.Embed(
+        title=f"Recent osu!{gamemode} Score for {user.username}",
+    )
+    embed_score.set_thumbnail(url=score_beatmap.beatmapset.background_url)
+    embed_score.add_field(name="Beatmap",value=f"{score_beatmap.beatmapset.title} [{score_beatmap.version}] ({score_beatmap.difficulty_rating}*)", inline=False)
+    print(gamemode)
+    match gamemode:
+        case "standard":
+             embed_score.add_field(name="Accuracy", value=f"{recent_score.accuracy * 100:,.2f}%     {recent_score.statistics.great}/{recent_score.statistics.ok}/{recent_score.statistics.meh}/{recent_score.statistics.miss}", inline=False)
+        case "taiko":
+             embed_score.add_field(name="Accuracy", value=f"{recent_score.accuracy * 100:,.2f}%     {recent_score.statistics.great}/{recent_score.statistics.ok}/{recent_score.statistics.miss}", inline=False)
+        case "mania":
+             embed_score.add_field(name="Accuracy", value=f"{recent_score.accuracy * 100:,.2f}%     {recent_score.statistics.perfect}/{recent_score.statistics.great}/{recent_score.statistics.good}/{recent_score.statistics.ok}/{recent_score.statistics.meh}/{recent_score.statistics.miss}", inline=False)         
+    embed_score.add_field(name="Total Score", value=f"{format(recent_score.legacy_total_score, ",d")}", inline=False)
+    embed_score.add_field(name="Combo", value=f"{format(recent_score.max_combo, ",d")}/{format(score_beatmap.max_combo, ",d")}", inline=False)
+    embed_score.add_field(name="Performance Points",value=f"{recent_score.pp}", inline=False)
+
+
+    return embed_score
+
+
 @bot.command()
-async def getuserprofile(ctx: commands.context, arg: int | str, gm: str = None) -> Embed:
+async def getuserprofile(ctx: commands.context, arg: int | str, gm: str = None) -> nextcord.Embed:
     await ctx.send(embed = osu_profile(arg, gm))
+
+@bot.command()
+async def getuserrecentscore(ctx: commands.context, arg ,gm = None):
+    await ctx.send(embed = recent_osu_score(arg, gm))
+
 
 @bot.event
 async def on_ready():
